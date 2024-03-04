@@ -1,0 +1,19 @@
+[package]
+name = "chainparser"
+description = "Parses Solana account data using provided IDL"
+version = "0.1.0"
+edition = "2021"
+
+[dependencies]
+arrayref = "0.3.7"
+borsh = "0.9.3"
+flate2 = "1.0.28"
+log = "0.4.21"
+serde = "1.0.197"
+serde_json = "1.0.114"
+solana-sdk = "1.18.4"
+solana_idl = "0.0.4"
+thiserror = "1.0.57"
+
+[dev-dependencies]
+base64 = "0.22.0"
