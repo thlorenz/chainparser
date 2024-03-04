@@ -1,0 +1,42 @@
+name: chainparser Build+Test
+
+on:
+  push:
+    branches: [master, ci]
+  pull_request:
+    branches: [master]
+
+env:
+  CARGO_TERM_COLOR: always
+
+jobs:
+  chainparser_build_and_test:
+    defaults:
+      run:
+        shell: bash
+
+    runs-on: ubuntu-latest
+    timeout-minutes: 90
+    strategy:
+      fail-fast: true
+
+    steps:
+      - uses: actions/checkout@master
+        if: github.event_name != 'pull_request'
+
+      - uses: Swatinem/rust-cache@v2
+        with:
+          shared-key: 'chainparser-build'
+
+      - name: Build and Run Tests
+        run: |
+          cargo build
+          make test
+
+      - name: cargo fmt
+        run: |
+          cargo fmt -- --check
+
+      - name: cargo clippy
+        run: |
+          cargo clippy -- --deny=warnings
