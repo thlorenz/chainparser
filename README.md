@@ -3,13 +3,15 @@
 Deserializing Solana accounts using their progam IDL
 
 ```rs
+use chainparser::{ChainparserDeserializer, IdlProvider, SerializationOpts};
+
 let opts = SerializationOpts {
     pubkey_as_base58: true,
     n64_as_string: false,
     n128_as_string: true,
 };
 
-let mut chainparser = chainparserDeserializer::new(&opts);
+let mut chainparser = ChainparserDeserializer::new(&opts);
 
 // 1. Add IDLS
 
@@ -21,6 +23,7 @@ let cndy_program_id = "cndy3Z4yapfJBmL3ShUp5exZKqR3z33thTzeNMm2gRZ";
         .add_idl_json(cndy_program_id.to_string(), &idl_json, IdlProvider::Anchor)
         .expect("failed adding IDL JSON");
 }
+
 //  Staking Program IDL
 let stake_program_id = "StakeSSzfxn391k3LvdKbZP5WVwWd6AsY1DNiXHjQfK";
 {
