@@ -1,4 +1,4 @@
-# chainparser
+# chainparser [![chainparser Build+Test](https://github.com/thlorenz/chainparser/actions/workflows/build-test-lint.yml/badge.svg)](https://github.com/thlorenz/chainparser/actions/workflows/build-test-lint.yml)
 
 Deserializing Solana accounts using their progam IDL
 
