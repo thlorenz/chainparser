@@ -22,7 +22,6 @@ jobs:
 
     steps:
       - uses: actions/checkout@master
-        if: github.event_name != 'pull_request'
 
       - uses: Swatinem/rust-cache@v2
         with:
