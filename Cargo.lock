@@ -41,6 +41,17 @@ dependencies = [
 ]
 
 [[package]]
+name = "anchor-lang-idl"
+version = "0.1.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "b29da81eae478b1bb846749b06b8a2cb9c6f9ed26ca793b0c916793fdf36adab"
+dependencies = [
+ "anyhow",
+ "serde",
+ "serde_json",
+]
+
+[[package]]
 name = "anyhow"
 version = "1.0.80"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -1473,9 +1484,9 @@ dependencies = [
 
 [[package]]
 name = "serde_json"
-version = "1.0.114"
+version = "1.0.117"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "c5f09b1bd632ef549eaa9f60a1f8de742bdbc698e6cee2095fc84dde5f549ae0"
+checksum = "455182ea6142b14f93f4bc5320a2b31c1f266b66a4a5c858b013302a5d8cbfc3"
 dependencies = [
  "itoa",
  "ryu",
@@ -1601,6 +1612,27 @@ dependencies = [
  "quote",
  "rustc_version",
  "syn 2.0.52",
+]
+
+[[package]]
+name = "solana-idl-classic"
+version = "0.1.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "1301fa5c61f40d51cc8e8c5ba6588705300760053c0589eb9602ea148ce69633"
+dependencies = [
+ "serde",
+]
+
+[[package]]
+name = "solana-idl-converter"
+version = "0.1.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "ae3c9f837edd5a1d5ff598840dc41a407b64376a1e758d2cc5ed157c56928c2b"
+dependencies = [
+ "anchor-lang-idl",
+ "serde",
+ "solana-idl-classic",
+ "thiserror",
 ]
 
 [[package]]
@@ -1739,11 +1771,15 @@ dependencies = [
 
 [[package]]
 name = "solana_idl"
-version = "0.0.4"
+version = "0.1.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "cbe9b10fe6e133e3aaffc30d2ab3d13dd71892214fb5c6302d296ad5a188a0f4"
+checksum = "f28fe239196a7e246e63882d7496721507c77706dc1ca95600d6ba5f0c0e9139"
 dependencies = [
- "serde",
+ "anchor-lang-idl",
+ "serde_json",
+ "solana-idl-classic",
+ "solana-idl-converter",
+ "thiserror",
 ]
 
 [[package]]
@@ -1803,18 +1839,18 @@ dependencies = [
 
 [[package]]
 name = "thiserror"
-version = "1.0.57"
+version = "1.0.61"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "1e45bcbe8ed29775f228095caf2cd67af7a4ccf756ebff23a306bf3e8b47b24b"
+checksum = "c546c80d6be4bc6a00c0f01730c08df82eaa7a7a61f11d656526506112cc1709"
 dependencies = [
  "thiserror-impl",
 ]
 
 [[package]]
 name = "thiserror-impl"
-version = "1.0.57"
+version = "1.0.61"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "a953cb265bef375dae3de6663da4d3804eee9682ea80d8e2542529b73c531c81"
+checksum = "46c3384250002a6d5af4d114f2845d37b57521033f30d5c3f46c4d70e1197533"
 dependencies = [
  "proc-macro2",
  "quote",
