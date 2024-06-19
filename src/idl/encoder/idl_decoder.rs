@@ -56,7 +56,7 @@ pub fn unzip_idl_account_json(bytes: &[u8]) -> ChainparserResult<String> {
 /// the contained JSON.
 fn decode_idl_data(data: &[u8]) -> ChainparserResult<(Idl, String)> {
     let json = unzip_bytes(data)?;
-    let idl: Idl = serde_json::from_str(&json)?;
+    let idl: Idl = solana_idl::try_extract_classic_idl(&json)?;
     Ok((idl, json))
 }
 

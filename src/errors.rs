@@ -10,6 +10,9 @@ pub enum ChainparserError {
     #[error("Borsh IO Error")]
     BorshIoError(#[from] borsh::maybestd::io::Error),
 
+    #[error("Solana Idl Error")]
+    SolanaIdlError(#[from] solana_idl::errors::IdlError),
+
     #[error("Deserializer '{0}' is not supported by chainsaw")]
     UnsupportedDeserializer(String),
 
