@@ -9,4 +9,4 @@ pub trait ParseableInstruction {
     fn data(&self) -> &[u8];
 }
 
-pub use accounts_mapper::map_instruction_account_labels;
+pub use accounts_mapper::{map_instruction_account_labels, BUILTIN_PROGRAMS};

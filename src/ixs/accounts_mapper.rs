@@ -7,23 +7,36 @@ use solana_sdk::pubkey::Pubkey;
 
 use crate::{
     idl::try_find_idl_and_provider_for_program, traits::AccountProvider,
-    Result as ChainparserResult,
 };
 
 use super::{discriminator::discriminator_from_ix, ParseableInstruction};
 
 #[rustfmt::skip]
 lazy_static! {
-    static ref SOLANA_PROGRAMS: HashMap<Pubkey, &'static str> = [
-        ("SystemProgram"          , "11111111111111111111111111111111"),
-        ("BPF Upgradeable Loader" , "BPFLoaderUpgradeab1e11111111111111111111111"),
-        ("BPF Loader 2"           , "BPFLoader2111111111111111111111111111111111"),
-        ("Config Program"         , "Config1111111111111111111111111111111111111"),
-        ("Feature Program"        , "Feature111111111111111111111111111111111111"),
-        ("Native Loader"          , "NativeLoader1111111111111111111111111111111"),
-        ("Stake Program"          , "Stake11111111111111111111111111111111111111"),
-        ("Sysvar"                 , "Sysvar1111111111111111111111111111111111111"),
-        ("Vote Program"           , "Vote111111111111111111111111111111111111111"),
+    pub static ref BUILTIN_PROGRAMS: HashMap<Pubkey, &'static str> = [
+        ("System Program"                , "11111111111111111111111111111111")           ,
+        ("BPF Upgradeable Loader"        , "BPFLoaderUpgradeab1e11111111111111111111111"),
+        ("BPF Loader 2"                  , "BPFLoader2111111111111111111111111111111111"),
+        ("Config Program"                , "Config1111111111111111111111111111111111111"),
+        ("Feature Program"               , "Feature111111111111111111111111111111111111"),
+        ("Native Loader"                 , "NativeLoader1111111111111111111111111111111"),
+        ("Stake Program"                 , "Stake11111111111111111111111111111111111111"),
+        ("Sysvar"                        , "Sysvar1111111111111111111111111111111111111"),
+        ("Vote Program"                  , "Vote111111111111111111111111111111111111111"),
+        ("Stake Config"                  , "StakeConfig11111111111111111111111111111111"),
+        ("Sol Program"                   , "So11111111111111111111111111111111111111112"),
+        ("Clock Sysvar"                  , "SysvarC1ock11111111111111111111111111111111"),
+        ("Epoch Schedule Sysvar"         , "SysvarEpochSchedu1e111111111111111111111111"),
+        ("Fees Sysvar"                   , "SysvarFees111111111111111111111111111111111"),
+        ("Last Restart Slog Sysvar"      , "SysvarLastRestartS1ot1111111111111111111111"),
+        ("Recent Blockhashes Sysvar"     , "SysvarRecentB1ockHashes11111111111111111111"),
+        ("Rent Sysvar"                   , "SysvarRent111111111111111111111111111111111"),
+        ("Slot Hashes"                   , "SysvarS1otHashes111111111111111111111111111"),
+        ("Slot History"                  , "SysvarS1otHistory11111111111111111111111111"),
+        ("Stake History"                 , "SysvarStakeHistory1111111111111111111111111"),
+        ("MagicBlock System Program"     , "Magic11111111111111111111111111111111111111"),
+        ("MagicBlock Delegation Program" , "DELeGGvXpWV2fqJUhqcF5ZSYMS4JTLjteaAMARRSaeSh"),
+        ("Luzid Authority"               , "LUzidNSiPNjYNkxZcUm5hYHwnWPwsUfh2US1cpWwaBm"),
     ]
     .into_iter()
     .map(|(name, key)| (Pubkey::from_str(key).unwrap(), name))
@@ -34,27 +47,22 @@ pub fn map_instruction_account_labels<T: AccountProvider>(
     account_provider: &T,
     instruction: &impl ParseableInstruction,
     idl: Option<Idl>,
-) -> ChainparserResult<HashMap<Pubkey, String>> {
+) -> (HashMap<Pubkey, String>, Option<Idl>) {
     let idl = match idl {
-        Some(idl) => idl,
-        None => {
-            let idl = try_find_idl_and_provider_for_program(
-                account_provider,
-                instruction.program_id(),
-            )
-            .map(|x| x.map(|(idl, _)| idl))?;
-            if let Some(idl) = idl {
-                idl
-            } else {
-                return Ok(HashMap::new());
-            }
-        }
+        Some(idl) => Some(idl),
+        None => try_find_idl_and_provider_for_program(
+            account_provider,
+            instruction.program_id(),
+        )
+        .ok()
+        .flatten()
+        .map(|x| x.0),
     };
-    Ok(InstructionAccountsMapper::map_accounts(instruction, idl))
+
+    InstructionAccountsMapper::map_accounts(instruction, idl)
 }
 
 pub struct InstructionAccountsMapper {
-    accounts: Vec<Pubkey>,
     idl_instruction: IdlInstruction,
 }
 
@@ -64,30 +72,40 @@ impl InstructionAccountsMapper {
     /// creates an entry for each account pubkey providing its name.
     pub fn map_accounts(
         instruction: &impl ParseableInstruction,
-        idl: Idl,
-    ) -> HashMap<Pubkey, String> {
-        Self::determine_accounts_mapper(instruction, &idl)
-            .map(|mapper| {
-                let mut accounts = HashMap::new();
-                for idx in 0..mapper.accounts.len() {
-                    let pubkey = mapper.accounts[idx];
-                    if let Some(name) = SOLANA_PROGRAMS.get(&pubkey) {
-                        accounts.insert(pubkey, name.to_string());
-                        continue;
-                    }
-                    let name = mapper
-                        .idl_instruction
-                        .accounts
-                        .get(idx)
-                        .map(|x| x.name().to_string());
-                    if let Some(name) = name {
-                        accounts.insert(pubkey, name);
-                    }
-                }
+        idl: Option<Idl>,
+    ) -> (HashMap<Pubkey, String>, Option<Idl>) {
+        let mapper = idl
+            .as_ref()
+            .and_then(|idl| Self::determine_accounts_mapper(instruction, idl));
+        let program_name = idl.as_ref().map(|idl| idl.name.to_string());
+        let program_id = instruction.program_id();
 
-                accounts
-            })
-            .unwrap_or_default()
+        let mut accounts = HashMap::new();
+        let ix_accounts = instruction.accounts();
+        for (idx, pubkey) in ix_accounts.into_iter().enumerate() {
+            if let Some(name) = BUILTIN_PROGRAMS.get(&pubkey) {
+                accounts.insert(pubkey, name.to_string());
+                continue;
+            }
+            if let Some(program_name) = program_name.as_ref() {
+                if &pubkey == program_id {
+                    accounts.insert(pubkey, program_name.to_string());
+                    continue;
+                }
+            }
+            if let Some(mapper) = &mapper {
+                let name = mapper
+                    .idl_instruction
+                    .accounts
+                    .get(idx)
+                    .map(|x| x.name().to_string());
+                if let Some(name) = name {
+                    accounts.insert(pubkey, name);
+                }
+            }
+        }
+
+        (accounts, idl)
     }
 
     fn determine_accounts_mapper(
@@ -95,10 +113,7 @@ impl InstructionAccountsMapper {
         idl: &Idl,
     ) -> Option<InstructionAccountsMapper> {
         find_best_matching_idl_ix(&idl.instructions, instruction).map(
-            |idl_instruction| InstructionAccountsMapper {
-                accounts: instruction.accounts(),
-                idl_instruction,
-            },
+            |idl_instruction| InstructionAccountsMapper { idl_instruction },
         )
     }
 }
