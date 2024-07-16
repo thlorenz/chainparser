@@ -1,6 +1,7 @@
 mod api;
 mod deserializer;
 pub mod errors;
+pub mod ixs;
 pub mod json;
 
 pub mod discriminator;
