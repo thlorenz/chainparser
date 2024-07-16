@@ -12,3 +12,5 @@ pub use deserializer::*;
 
 pub mod de;
 pub mod traits;
+
+pub use solana_idl::*;
