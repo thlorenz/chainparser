@@ -1,5 +1,6 @@
+use lazy_static::lazy_static;
 use log::*;
-use std::collections::HashMap;
+use std::{collections::HashMap, str::FromStr};
 
 use solana_idl::{Idl, IdlInstruction};
 use solana_sdk::pubkey::Pubkey;
@@ -10,6 +11,24 @@ use crate::{
 };
 
 use super::{discriminator::discriminator_from_ix, ParseableInstruction};
+
+#[rustfmt::skip]
+lazy_static! {
+    static ref SOLANA_PROGRAMS: HashMap<Pubkey, &'static str> = [
+        ("SystemProgram"          , "11111111111111111111111111111111"),
+        ("BPF Upgradeable Loader" , "BPFLoaderUpgradeab1e11111111111111111111111"),
+        ("BPF Loader 2"           , "BPFLoader2111111111111111111111111111111111"),
+        ("Config Program"         , "Config1111111111111111111111111111111111111"),
+        ("Feature Program"        , "Feature111111111111111111111111111111111111"),
+        ("Native Loader"          , "NativeLoader1111111111111111111111111111111"),
+        ("Stake Program"          , "Stake11111111111111111111111111111111111111"),
+        ("Sysvar"                 , "Sysvar1111111111111111111111111111111111111"),
+        ("Vote Program"           , "Vote111111111111111111111111111111111111111"),
+    ]
+    .into_iter()
+    .map(|(name, key)| (Pubkey::from_str(key).unwrap(), name))
+    .collect();
+}
 
 pub fn map_instruction_account_labels<T: AccountProvider>(
     account_provider: &T,
@@ -52,6 +71,10 @@ impl InstructionAccountsMapper {
                 let mut accounts = HashMap::new();
                 for idx in 0..mapper.accounts.len() {
                     let pubkey = mapper.accounts[idx];
+                    if let Some(name) = SOLANA_PROGRAMS.get(&pubkey) {
+                        accounts.insert(pubkey, name.to_string());
+                        continue;
+                    }
                     let name = mapper
                         .idl_instruction
                         .accounts
