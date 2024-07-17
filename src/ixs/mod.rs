@@ -1,7 +1,7 @@
 use solana_sdk::pubkey::Pubkey;
 
-mod accounts_mapper;
 mod discriminator;
+mod instruction_mapper;
 
 pub trait ParseableInstruction {
     fn program_id(&self) -> &Pubkey;
@@ -9,4 +9,6 @@ pub trait ParseableInstruction {
     fn data(&self) -> &[u8];
 }
 
-pub use accounts_mapper::{map_instruction_account_labels, BUILTIN_PROGRAMS};
+pub use instruction_mapper::{
+    map_instruction, InstructionMapResult, InstructionMapper, BUILTIN_PROGRAMS,
+};

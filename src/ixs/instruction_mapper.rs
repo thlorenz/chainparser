@@ -39,25 +39,31 @@ lazy_static! {
     .collect();
 }
 
-pub fn map_instruction_account_labels(
+pub fn map_instruction(
     instruction: &impl ParseableInstruction,
     idl: Option<&Idl>,
-) -> HashMap<Pubkey, String> {
-    InstructionAccountsMapper::map_accounts(instruction, idl)
+) -> InstructionMapResult {
+    InstructionMapper::map_accounts(instruction, idl)
 }
 
-pub struct InstructionAccountsMapper {
+pub struct InstructionMapper {
     idl_instruction: IdlInstruction,
 }
 
-impl InstructionAccountsMapper {
+pub struct InstructionMapResult {
+    pub accounts: HashMap<Pubkey, String>,
+    pub instruction_name: Option<String>,
+    pub program_name: Option<String>,
+}
+
+impl InstructionMapper {
     /// First determines which IDL to use via the [program_id] of the instruction.
     /// Then it finds the best matching IDL instruction for provided instruction and
     /// creates an entry for each account pubkey providing its name.
     pub fn map_accounts(
         instruction: &impl ParseableInstruction,
         idl: Option<&Idl>,
-    ) -> HashMap<Pubkey, String> {
+    ) -> InstructionMapResult {
         let mapper = idl
             .as_ref()
             .and_then(|idl| Self::determine_accounts_mapper(instruction, idl));
@@ -65,6 +71,7 @@ impl InstructionAccountsMapper {
         let program_id = instruction.program_id();
 
         let mut accounts = HashMap::new();
+        let mut instruction_name = None::<String>;
         let ix_accounts = instruction.accounts();
         for (idx, pubkey) in ix_accounts.into_iter().enumerate() {
             if let Some(name) = BUILTIN_PROGRAMS.get(&pubkey) {
@@ -86,19 +93,27 @@ impl InstructionAccountsMapper {
                 if let Some(name) = name {
                     accounts.insert(pubkey, name);
                 }
+                instruction_name
+                    .replace(mapper.idl_instruction.name.to_string());
             }
         }
+        let program_name = idl.map(|x| x.name.to_string()).or_else(|| {
+            BUILTIN_PROGRAMS.get(program_id).map(|x| x.to_string())
+        });
 
-        accounts
+        InstructionMapResult {
+            accounts,
+            instruction_name,
+            program_name,
+        }
     }
 
     fn determine_accounts_mapper(
         instruction: &impl ParseableInstruction,
         idl: &Idl,
-    ) -> Option<InstructionAccountsMapper> {
-        find_best_matching_idl_ix(&idl.instructions, instruction).map(
-            |idl_instruction| InstructionAccountsMapper { idl_instruction },
-        )
+    ) -> Option<InstructionMapper> {
+        find_best_matching_idl_ix(&idl.instructions, instruction)
+            .map(|idl_instruction| InstructionMapper { idl_instruction })
     }
 }
 
