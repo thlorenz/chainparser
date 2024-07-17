@@ -954,7 +954,6 @@ dependencies = [
 
 [[package]]
 name = "lazy_static"
-version = "1.4.0"
 version = "1.5.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "bbd2bcb4c963f2ddae06a2efc7e9f3591312473c50c6685e1f298068316e66fe"
@@ -1625,18 +1624,18 @@ dependencies = [
 
 [[package]]
 name = "solana-idl-classic"
-version = "0.1.0"
+version = "0.2.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "1301fa5c61f40d51cc8e8c5ba6588705300760053c0589eb9602ea148ce69633"
+checksum = "0c1d97756a955ebbe202c2b92c7cfb8ba85936de474edc7e733bd5f8a1f26070"
 dependencies = [
  "serde",
 ]
 
 [[package]]
 name = "solana-idl-converter"
-version = "0.1.0"
+version = "0.2.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "ae3c9f837edd5a1d5ff598840dc41a407b64376a1e758d2cc5ed157c56928c2b"
+checksum = "4a1ae28868e1bfb26d542c636bc05163db7f04f17bdc5feda065eb32c8caab2a"
 dependencies = [
  "anchor-lang-idl",
  "serde",
@@ -1780,9 +1779,9 @@ dependencies = [
 
 [[package]]
 name = "solana_idl"
-version = "0.1.0"
+version = "0.2.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "f28fe239196a7e246e63882d7496721507c77706dc1ca95600d6ba5f0c0e9139"
+checksum = "ae838dffc11f1858c80435dde65308685c3d8fc7cb8dfd9af08205a429907bf5"
 dependencies = [
  "anchor-lang-idl",
  "serde_json",
