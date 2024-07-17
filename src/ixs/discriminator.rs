@@ -1,3 +1,4 @@
+use heck::ToSnakeCase;
 use solana_idl::IdlInstruction;
 use solana_sdk::hash;
 
@@ -23,8 +24,11 @@ pub fn discriminator_from_ix(ix: &IdlInstruction) -> Vec<u8> {
 /// Replicates the mechanism that anchor used in order to derive a discriminator
 /// from the name of an instruction.
 fn anchor_sighash(namespace: &str, ix_name: &str) -> [u8; 8] {
-    // NOTE: we don't camel-case the ix_name as the discriminator is derived from the name
-    // exactly the way it appears in the IDL.
+    // NOTE: even though the name of the ix is lower camel cased in the IDL it
+    // seems that the IX discriminator is derived from the snake case version
+    // (see discriminator_for_house_initialize test below which came from a real case)
+    let ix_name = ix_name.to_snake_case();
+
     let preimage = format!("{namespace}:{ix_name}");
 
     let mut sighash = [0u8; 8];
@@ -59,5 +63,15 @@ mod tests {
         let sighash =
             anchor_sighash(SIGHASH_GLOBAL_NAMESPACE, "process_undelegation");
         assert_eq!(sighash, [196, 28, 41, 206, 48, 37, 51, 167]);
+    }
+    #[test]
+    fn discriminator_for_house_initialize() {
+        // 8d 53 7d 73 a2 98 51 e7 e1 5f 47 02 00 00 00 00
+        let sighash =
+            anchor_sighash(SIGHASH_GLOBAL_NAMESPACE, "house_initialize");
+        assert_eq!(sighash, [141, 83, 125, 115, 162, 152, 81, 231]);
+        let sighash =
+            anchor_sighash(SIGHASH_GLOBAL_NAMESPACE, "houseInitialize");
+        assert_eq!(sighash, [141, 83, 125, 115, 162, 152, 81, 231]);
     }
 }
