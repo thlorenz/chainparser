@@ -38,6 +38,14 @@ export function vecU8(property?: string): Layout<Buffer> {
 ```
 **/
 
+/// Parses the provided JSON string into an [Idl] struct.
+/// It attempts to parse it directly as a classic IDL and if that fails it
+/// will parse as the new anchor IDL format and then convert to the
+/// classic.
+pub fn try_parse_idl_json(json: &str) -> ChainparserResult<Idl> {
+    Ok(solana_idl::try_extract_classic_idl(json)?)
+}
+
 /// Same as [decode_idl_data] except that it strips the prefix bytes before
 /// unzipping the packed JSON.
 pub fn decode_idl_account_data(
