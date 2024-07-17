@@ -111,7 +111,16 @@ fn find_best_matching_idl_ix(
     for idl_ix in ix_idls {
         let disc = discriminator_from_ix(idl_ix);
         trace!("Discriminator for '{}': {:?}", idl_ix.name, disc);
-        let score = disc.iter().zip(ix.data()).filter(|(a, b)| a == b).count();
+        if disc.len() > ix.data().len() {
+            continue;
+        }
+        let mut score = 0;
+        for (a, b) in disc.iter().zip(ix.data()) {
+            if a != b {
+                break;
+            }
+            score += 1;
+        }
         if score > best_match_score {
             best_match = Some(idl_ix);
             best_match_score = score;
