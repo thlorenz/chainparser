@@ -22,3 +22,19 @@ pub fn try_find_idl_for_program<T: AccountProvider>(
         None => Ok(None),
     }
 }
+
+pub fn try_find_idl_and_provider_for_program<T: AccountProvider>(
+    account_provider: &T,
+    program_id: &Pubkey,
+) -> ChainparserResult<Option<(Idl, IdlProvider)>> {
+    for idl_provider in super::IDL_PROVIDERS {
+        if let Some(idl) = try_find_idl_for_program(
+            account_provider,
+            program_id,
+            idl_provider,
+        )? {
+            return Ok(Some((idl, idl_provider.clone())));
+        }
+    }
+    Ok(None)
+}
