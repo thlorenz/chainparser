@@ -5,10 +5,6 @@ use std::{collections::HashMap, str::FromStr};
 use solana_idl::{Idl, IdlInstruction};
 use solana_sdk::pubkey::Pubkey;
 
-use crate::{
-    idl::try_find_idl_and_provider_for_program, traits::AccountProvider,
-};
-
 use super::{discriminator::discriminator_from_ix, ParseableInstruction};
 
 #[rustfmt::skip]
@@ -43,22 +39,10 @@ lazy_static! {
     .collect();
 }
 
-pub fn map_instruction_account_labels<T: AccountProvider>(
-    account_provider: &T,
+pub fn map_instruction_account_labels(
     instruction: &impl ParseableInstruction,
-    idl: Option<Idl>,
-) -> (HashMap<Pubkey, String>, Option<Idl>) {
-    let idl = match idl {
-        Some(idl) => Some(idl),
-        None => try_find_idl_and_provider_for_program(
-            account_provider,
-            instruction.program_id(),
-        )
-        .ok()
-        .flatten()
-        .map(|x| x.0),
-    };
-
+    idl: Option<&Idl>,
+) -> HashMap<Pubkey, String> {
     InstructionAccountsMapper::map_accounts(instruction, idl)
 }
 
@@ -72,8 +56,8 @@ impl InstructionAccountsMapper {
     /// creates an entry for each account pubkey providing its name.
     pub fn map_accounts(
         instruction: &impl ParseableInstruction,
-        idl: Option<Idl>,
-    ) -> (HashMap<Pubkey, String>, Option<Idl>) {
+        idl: Option<&Idl>,
+    ) -> HashMap<Pubkey, String> {
         let mapper = idl
             .as_ref()
             .and_then(|idl| Self::determine_accounts_mapper(instruction, idl));
@@ -105,7 +89,7 @@ impl InstructionAccountsMapper {
             }
         }
 
-        (accounts, idl)
+        accounts
     }
 
     fn determine_accounts_mapper(
