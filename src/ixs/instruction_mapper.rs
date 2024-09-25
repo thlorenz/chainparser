@@ -32,6 +32,7 @@ lazy_static! {
         ("Stake History"                 , "SysvarStakeHistory1111111111111111111111111"),
         ("MagicBlock System Program"     , "Magic11111111111111111111111111111111111111"),
         ("MagicBlock Delegation Program" , "DELeGGvXpWV2fqJUhqcF5ZSYMS4JTLjteaAMARRSaeSh"),
+        ("MagicBlock Context"            , "MagicContext1111111111111111111111111111111"),
         ("Luzid Authority"               , "LUzidNSiPNjYNkxZcUm5hYHwnWPwsUfh2US1cpWwaBm"),
     ]
     .into_iter()
